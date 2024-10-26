@@ -21,7 +21,7 @@ namespace task1.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var employees = await context.Employees.FromSqlRaw("exec GetEmployees").ToListAsync();
+            var employees = await context.Employees.ToListAsync();
 
             if (employees == null || !employees.Any())
                 return NotFound();
@@ -29,7 +29,6 @@ namespace task1.Controllers
             return Ok(employees);
 
         }
-
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
@@ -51,32 +50,25 @@ namespace task1.Controllers
             if (employee == null)
                 return NotFound();
 
-            await context.Database.ExecuteSqlRawAsync("exec EditEmployee @id, @name, @dep, @salary, @email, @mob, @date ",
-                    new SqlParameter("@id", id),
-                    new SqlParameter("@name", empDto.EmployeeName),
-                    new SqlParameter("@dep", empDto.DepartmentId),
-                    new SqlParameter("@salary", empDto.Salary),
-                    new SqlParameter("@email", empDto.Email),
-                    new SqlParameter("@mob", empDto.MobileNo),
-                    new SqlParameter("@date", empDto.JoiningDate));
+            employee.Email = empDto.Email;
+            employee.Salary = empDto.Salary;
+            employee.MobileNo = empDto.MobileNo;
+            employee.DepartmentId = empDto.DepartmentId;
+            employee.JoiningDate = empDto.JoiningDate;
+            employee.EmployeeName = empDto.EmployeeName;
 
-            var emp = await context.Employees.FindAsync(id);
-            return Ok(emp);
+            await context.SaveChangesAsync();
+
+            return Ok(employee);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddEmployeeDto employeeDto)
         {
             var emp = employeeDto.ToEmployeeFromAddDto();
+            await context.Employees.AddAsync(emp);
 
-            await context.Database.ExecuteSqlRawAsync("exec AddEmployee @name, @dep, @salary, @email, @mob",
-                    new SqlParameter("@name", employeeDto.EmployeeName),
-                    new SqlParameter("@dep", employeeDto.DepartmentId),
-                    new SqlParameter("@salary", employeeDto.Salary),
-                    new SqlParameter("@email", employeeDto.Email),
-                    new SqlParameter("@mob", employeeDto.MobileNo),
-                    new SqlParameter("@date", employeeDto.JoiningDate));
-
+            await context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetAll), emp);
         }
     }
