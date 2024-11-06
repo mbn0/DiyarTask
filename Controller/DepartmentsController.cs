@@ -1,9 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using task1.Models;
-using task1.Dtos.EmployeeDtos;
-using task1.Mappers;
-using Microsoft.Data.SqlClient;
+using task1.Interfaces;
 
 namespace task1.Controllers
 {
@@ -12,10 +8,10 @@ namespace task1.Controllers
     public class DepartmentsController : ControllerBase
     {
         //dbcontext
-        public readonly Task1Context context;
+        public readonly IDepartmentRepo context;
          
         //constructor
-        public DepartmentsController(Task1Context _context)
+        public DepartmentsController(IDepartmentRepo _context)
         {
             context = _context; 
         }
@@ -23,7 +19,7 @@ namespace task1.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var departments = await context.Departments.ToListAsync();
+            var departments = await context.GetAll();
             return Ok(departments); 
         }
 

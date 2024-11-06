@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using task1.Models;
 using task1.Dtos.EmployeeDtos;
 using task1.Mappers;
-using Microsoft.Data.SqlClient;
+using task1.Interfaces;
 
 namespace task1.Controllers
 {
@@ -11,17 +11,18 @@ namespace task1.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
-        public readonly Task1Context context;
+        public readonly IEmployeeRepo empContext;
 
-        public EmployeesController(Task1Context _context)
+        public EmployeesController(IEmployeeRepo _context)
         {
-            context = _context;
+            empContext = _context;
         }
 
+        //get all
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var employees = await context.Employees.ToListAsync();
+            var employees = await empContext.GetAll();
 
             if (employees == null || !employees.Any())
                 return NotFound();
@@ -30,10 +31,12 @@ namespace task1.Controllers
 
         }
 
+
+        //get by id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var emp = await context.Employees.FindAsync(id);
+            var emp = await empContext.GetById(id);
 
             if (emp == null)
             {
@@ -42,33 +45,23 @@ namespace task1.Controllers
             return Ok(emp);
         }
 
+        //edit
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateEmployeeDto empDto)
         {
 
-            var employee = await context.Employees.FindAsync(id);
-            if (employee == null)
-                return NotFound();
+             await empContext.Edit(id, empDto);
 
-            employee.Email = empDto.Email;
-            employee.Salary = empDto.Salary;
-            employee.MobileNo = empDto.MobileNo;
-            employee.DepartmentId = empDto.DepartmentId;
-            employee.JoiningDate = empDto.JoiningDate;
-            employee.EmployeeName = empDto.EmployeeName;
-
-            await context.SaveChangesAsync();
-
-            return Ok(employee);
+            return  Ok();
         }
 
+        //add
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddEmployeeDto employeeDto)
         {
             var emp = employeeDto.ToEmployeeFromAddDto();
-            await context.Employees.AddAsync(emp);
+            await empContext.Add(employeeDto);
 
-            await context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetAll), emp);
         }
     }

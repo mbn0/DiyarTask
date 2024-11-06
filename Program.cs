@@ -1,3 +1,5 @@
+using task1.Interfaces;
+using task1.Repos;
 using Microsoft.EntityFrameworkCore;
 using task1.Models;
 
@@ -14,6 +16,10 @@ builder.Services.AddDbContext<Task1Context>(
 
 builder.Services.AddCors( policy=>
         {policy.AddPolicy("AllowOrigin", option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());});
+
+//Interfaces
+builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
+builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
 
 builder.Services.AddControllers(); // This registers your controllers
 
