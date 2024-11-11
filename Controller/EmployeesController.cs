@@ -24,35 +24,34 @@ namespace task1.Controllers
         {
             var employees = await empContext.GetAll();
 
-            if (employees == null || !employees.Any())
+            if (employees == null)
                 return NotFound();
 
-            return Ok(employees);
+            List<EmployeeDto> employeesDtos = employees.Select(s => s.ToEmployeeDto()).ToList();
 
+            return Ok(employeesDtos);
         }
 
 
         //get by id
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> GetById([FromRoute] int Id)
         {
-            var emp = await empContext.GetById(id);
+            var emp = await empContext.GetById(Id);
 
             if (emp == null)
             {
                 return NotFound();
             }
-            return Ok(emp);
+            return Ok(emp.ToEmployeeDto());
         }
 
         //edit
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateEmployeeDto empDto)
+        [HttpPut("{Id}")]
+        public async Task<IActionResult> Update([FromRoute] int Id, [FromBody] UpdateEmployeeDto empDto)
         {
-
-             await empContext.Edit(id, empDto);
-
-            return  Ok();
+            var emp = await empContext.Edit(Id, empDto);
+            return Ok(emp.ToEmployeeDto());
         }
 
         //add
@@ -63,6 +62,14 @@ namespace task1.Controllers
             await empContext.Add(employeeDto);
 
             return CreatedAtAction(nameof(GetAll), emp);
+        }
+
+        //Delete
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> Delete([FromRoute] int Id)
+        {
+            await empContext.Delete(Id);
+            return NoContent();
         }
     }
 }

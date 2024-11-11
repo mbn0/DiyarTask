@@ -10,7 +10,8 @@ namespace task1.Interfaces
         Task<List<Employee>> GetAll();
         Task<Employee?> GetById(int Id);
         Task<Employee> Edit(int Id,UpdateEmployeeDto emp); 
-        Task Add(AddEmployeeDto emp);
+        Task<Employee> Add(AddEmployeeDto emp);
+        Task Delete(int Id);
     }
 
 }

@@ -24,10 +24,12 @@ namespace task1.Repos
 
 
         // Add
-        public async Task Add(AddEmployeeDto emp)
+        public async Task<Employee> Add(AddEmployeeDto empDto)
         {
-            await context.Employees.AddAsync(emp.ToEmployeeFromAddDto());
+            var emp = empDto.ToEmployeeFromAddDto();
+            await context.Employees.AddAsync(emp);
             await context.SaveChangesAsync();
+            return emp;
         }
 
         // Edit
@@ -35,23 +37,31 @@ namespace task1.Repos
         {
             var employee = await context.Employees.FindAsync(id);
 
-            if (employee != null){
-            employee.Salary = empDto.Salary;
-            employee.Email = empDto.Email;
-            employee.MobileNo = empDto.MobileNo;
-            employee.DepartmentId = empDto.DepartmentId;
-            employee.JoiningDate = empDto.JoiningDate;
-            employee.EmployeeName = empDto.EmployeeName;
+            if (employee != null)
+            {
+                employee.Salary = empDto.Salary;
+                employee.Email = empDto.Email;
+                employee.MobileNo = empDto.MobileNo;
+                employee.DepartmentId = empDto.DepartmentId;
+                employee.JoiningDate = empDto.JoiningDate;
+                employee.EmployeeName = empDto.EmployeeName;
 
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+
+                return employee;
             }
             else
-            {
                 throw new KeyNotFoundException("Employee not found.");
-            }
+            
 
-            return employee;
         }
 
+        public async Task Delete(int Id)
+        {
+            var emp = await context.Employees.FindAsync(Id);
+            if (emp != null)
+                context.Employees.Remove(emp);
+            await context.SaveChangesAsync();
+        }
     }
 }
