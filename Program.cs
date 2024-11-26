@@ -2,6 +2,8 @@ using task1.Interfaces;
 using task1.Repos;
 using Microsoft.EntityFrameworkCore;
 using task1.Models;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers().AddNewtonsoftJson(
+    options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+    );
 
 builder.Services.AddDbContext<Task1Context>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))

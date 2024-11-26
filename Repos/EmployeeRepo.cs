@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using task1.Interfaces;
 using task1.Models;
 using task1.Dtos.EmployeeDtos;
+using task1.Helpers;
 
 namespace task1.Repos
 {
@@ -15,8 +16,15 @@ namespace task1.Repos
         { context = _context; }
 
         // Get All
-        public async Task<List<Employee>> GetAll()
-        { return await context.Employees.ToListAsync(); }
+        public async Task<List<Employee>> GetAll(EmployeeQuery employeeQuery)
+        { 
+          var employees = context.Employees.AsQueryable();
+          if(!string.IsNullOrEmpty(employeeQuery.name))
+            employees = employees.Where(em=> em.EmployeeName.Contains(employeeQuery.name)) ;
+          if(!string.IsNullOrEmpty(employeeQuery.email))
+            employees = employees.Where(em=> em.Email.Contains(employeeQuery.email)) ;
+          return await employees.ToListAsync();
+        }
 
         // Get By Id
         public async Task<Employee?> GetById(int id)
@@ -52,16 +60,18 @@ namespace task1.Repos
             }
             else
                 throw new KeyNotFoundException("Employee not found.");
-            
+
 
         }
 
-        public async Task Delete(int Id)
+        public async Task<Boolean> Delete(int Id)
         {
             var emp = await context.Employees.FindAsync(Id);
-            if (emp != null)
-                context.Employees.Remove(emp);
+            if (emp == null)
+              return false;
+            context.Employees.Remove(emp);
             await context.SaveChangesAsync();
+            return true;
         }
     }
 }

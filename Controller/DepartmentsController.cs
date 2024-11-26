@@ -29,10 +29,10 @@ namespace task1.Controllers
         }
         
         //Get By Id
-        [HttpGet("{Id}")]
-        public async Task<IActionResult> GetById([FromRoute]int Id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute]int id)
         {
-            var dep = await depContext.GetById(Id);
+            var dep = await depContext.GetById(id);
 
             if (dep == null)
             {
@@ -50,19 +50,19 @@ namespace task1.Controllers
         }
 
         // Update
-        [HttpPut("{Id}")]
-        public async Task<IActionResult> Update([FromRoute] int Id,[FromBody] UpdateDepartmentDto depDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] int id,[FromBody] UpdateDepartmentDto depDto)
         {
-            var dep = await depContext.Update(Id, depDto);
+            var dep = await depContext.Update(id, depDto);
             return Ok();
 
         }
 
         //Delete
-        [HttpDelete("{Id}")]
-        public async Task<IActionResult> Delete([FromRoute] int Id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var success = await depContext.Delete(Id);
+            var success = await depContext.Delete(id);
 
             return success?NoContent():NotFound();
         }

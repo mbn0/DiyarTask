@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using task1.Models;
 using task1.Dtos.EmployeeDtos;
 using task1.Mappers;
 using task1.Interfaces;
+using task1.Helpers;
 
 namespace task1.Controllers
 {
@@ -20,24 +19,23 @@ namespace task1.Controllers
 
         //get all
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] EmployeeQuery employeeQuery)
         {
-            var employees = await empContext.GetAll();
+            var employees = await empContext.GetAll(employeeQuery);
 
             if (employees == null)
                 return NotFound();
 
-            List<EmployeeDto> employeesDtos = employees.Select(s => s.ToEmployeeDto()).ToList();
+            var employeesDtos = employees.Select(s => s.ToEmployeeDto());
 
             return Ok(employeesDtos);
         }
 
-
         //get by id
-        [HttpGet("{Id}")]
-        public async Task<IActionResult> GetById([FromRoute] int Id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var emp = await empContext.GetById(Id);
+            var emp = await empContext.GetById(id);
 
             if (emp == null)
             {
@@ -47,10 +45,10 @@ namespace task1.Controllers
         }
 
         //edit
-        [HttpPut("{Id}")]
-        public async Task<IActionResult> Update([FromRoute] int Id, [FromBody] UpdateEmployeeDto empDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateEmployeeDto empDto)
         {
-            var emp = await empContext.Edit(Id, empDto);
+            var emp = await empContext.Edit(id, empDto);
             return Ok(emp.ToEmployeeDto());
         }
 
@@ -58,18 +56,21 @@ namespace task1.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddEmployeeDto employeeDto)
         {
-            var emp = employeeDto.ToEmployeeFromAddDto();
-            await empContext.Add(employeeDto);
+             employeeDto.ToEmployeeFromAddDto();
+            var emp = await empContext.Add(employeeDto);
 
-            return CreatedAtAction(nameof(GetAll), emp);
+            return CreatedAtAction(nameof(GetById), emp);
         }
 
         //Delete
-        [HttpDelete("{Id}")]
-        public async Task<IActionResult> Delete([FromRoute] int Id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            await empContext.Delete(Id);
-            return NoContent();
+            var success = await empContext.Delete(id);
+            if (success)
+              return NoContent();
+            else
+              return NotFound();
         }
     }
 }
