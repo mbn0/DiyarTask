@@ -12,6 +12,7 @@ namespace task1.Mappers
             {
                 DepartmentId = dep.DepartmentId,
                 DepartmentName = dep.DepartmentName,
+                Employees = dep.Employees.Select(e => e.ToEmployeeDto()).ToList()
             };
 
         }

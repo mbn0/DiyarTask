@@ -15,11 +15,11 @@ namespace task1.Repos
 
         // Get All
         public async Task<List<Department>> GetAll()
-        { return await context.Departments.ToListAsync(); }
+        { return await context.Departments.Include(c => c.Employees).ToListAsync(); }
 
         //Get By Id
         public async Task<Department?> GetById(int Id)
-        { return await context.Departments.FindAsync(Id); }
+        { return await context.Departments.Include(e => e.Employees).FirstOrDefaultAsync(i=> i.DepartmentId ==Id ); }
 
         // Add
         public async Task<Department> Add(AddDepartmentDto depDto)
